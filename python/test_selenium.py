@@ -1,6 +1,5 @@
 import random
 import time
-
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -10,6 +9,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
+from bs4 import BeautifulSoup
 
 service = Service(ChromeDriverManager().install())
 
@@ -34,8 +34,8 @@ def waitTimeAndClick(nav, locator, timeout = 10):
         element.click()
         return element
     except Exception as e:
-        #print(f"Element not found or not clickable!")
-        return False
+        print(f"Element not found or not clickable!")
+        return print(f"Error {e}")
 
 #Espera o elemento estar presente na pagina
 
@@ -43,11 +43,16 @@ def waitForElement(nav, locator, condition = EC.presence_of_element_located, tim
     return WebDriverWait(nav, timeout).until(condition(locator))
 
 
+#Função que desce a pagina kk
+def pageScroll(driver, scroll_pixels, timeout):
+    time.sleep(timeout)
+    driver.execute_script(f"window.scrollBy(0, {scroll_pixels});")
+
 #Fecha popup de cookie
 def close_modal(nav):
     try:
         waitTimeAndClick(nav, (By.XPATH, '//*[@class="dp-bar-button dp-bar-dismiss"]'))
-        print("Modal fechado")
+        print("Modal Closed")
     except Exception as e:
         print(f"Failed to close modal: {e}")
 
@@ -58,43 +63,56 @@ def locate_search(nav):
         click_search = waitTimeAndClick(nav, (By.XPATH, '//input[@name="search"]'))
         click_search.send_keys("Câmera")
         click_search.send_keys(Keys.RETURN)
-        print("Pesquisa Feita")
+        print("Search Done")
     except Exception as e:
         print(f"Error: {e}")
 
-
+#Fecha dropdown de contato (mexe o mouse um pouco pra atualizar a pagina, não sei por que q é assim)
 def closetab(nav):
     try:
-        time.sleep(5)
+        time.sleep(1)
         actions = ActionChains(nav)
         actions.move_by_offset(100, 50).perform()
-        waitForElement(nav, (By.XPATH, '//button[@type="button" and @class="close-btn"]'))
-        print("tab closed")
+        print("Tab closed")
     except Exception as e:
         print(f"Error in closetab {e}")
 
 
-
-def productClick(nav, scroll_pixels=200):
+#Desce pagina em 200 pixels e clica no produto do link (talvez desenvolver funcao para qualquer um dos itens presentes ao inves de um especifico...)
+def productClick(nav):
     try:
-        time.sleep(5)
-        nav.execute_script(f"window.scrollBy(0, {scroll_pixels});")
-        time.sleep(2)
+        pageScroll(nav, 200, 2)
         try:
-            element = waitForElement(nav, (By.XPATH, '//a[contains(@href, "/pt-br/camera-ip-serie-1000-com-full-color-e-ir-vip-1430-d-fc")]'))
-            actions = ActionChains(nav)
-            actions.move_to_element(to_element=element).perform()
-            print("achou tag a")
-            waitTimeAndClick(nav, (By.XPATH, '//div[contains(@class, "pb2 pl2 pr2")]'))
-            return waitTimeAndClick(nav, (By.XPATH, '//a[contains(@href, "/pt-br/camera-ip-serie-1000-com-full-color-e-ir-vip-1430-d-fc")]'))
+            waitTimeAndClick(nav, (By.XPATH, '//a[contains(@href, "/pt-br/camera-ip-serie-1000-com-full-color-e-ir-vip-1430-d-fc")]'))
+            print("Product Clicked")
         except Exception as wait_error:
-            print(f"tag a não encontrada: {wait_error}")
+            print(f"tag not found: {wait_error}")
             return False
     except Exception as e:
-        print(f"Não encontrado produto clicavel: {e}")
+        print(f"Unable to scroll: {e}")
         return False
-        
 
+
+
+def waitLastPage(nav):
+    try:
+        waitForElement(nav, (By.XPATH, '//*[@class="page-product"]'))
+        try:
+            soup = BeautifulSoup(nav.page_source, 'html.parser')
+            paragraphs = soup.find_all(class_='mb2 hero-title-product h2 large-h3')           
+            for p in paragraphs:         
+                print(p.get_text())
+                with open("output.html", "w" , encoding="utf-8") as file:
+                    file.write(str(p.getText()))
+        except Exception as e:
+            print(f"Error extracting paragraphs: {e}")
+    except Exception as e:
+        print(f"Page didn't load: {e}")
+
+
+
+
+#Ordem de execução do programa
 def ordemExec():
     try:
         nav = initialization()
@@ -102,6 +120,7 @@ def ordemExec():
         locate_search(nav)
         closetab(nav)
         productClick(nav)
+        waitLastPage(nav)
 
         input("Press Enter to close browser...")
         nav.quit()
