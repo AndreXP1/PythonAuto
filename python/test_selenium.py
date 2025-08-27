@@ -1,5 +1,9 @@
+import os
 import random
 import time
+from urllib.parse import urljoin
+import requests
+from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -9,7 +13,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
-from bs4 import BeautifulSoup
 
 service = Service(ChromeDriverManager().install())
 
@@ -97,17 +100,47 @@ def product_click(nav):
 def wait_last_page(nav):
     try:
         wait_for_element(nav, (By.XPATH, '//*[@class="page-product"]'))
-        try:
-            soup = BeautifulSoup(nav.page_source, 'html.parser')
-            paragraphs = soup.find_all(class_='mb2 hero-title-product h2 large-h3')           
-            for p in paragraphs:         
-                print(p.get_text())
-                with open("output.html", "w" , encoding="utf-8") as file:
-                    file.write(str(p.getText()))
-        except Exception as e:
-            print(f"Error extracting paragraphs: {e}")
+        
+        soup = BeautifulSoup(nav.page_source, 'html.parser')
+        
+        # Cria um diretório para salvar os arquivos CSS
+        css_dir = "css_files"
+        if not os.path.exists(css_dir):
+            os.makedirs(css_dir)
+
+        # Encontra todas as tags <link> de CSS
+        css_links = soup.find_all('link', rel='stylesheet')
+        
+        for index, link in enumerate(css_links):
+            href = link.get('href')
+            if href:
+                # Constrói a URL completa do arquivo CSS
+                css_url = urljoin(nav.current_url, href)
+                try:
+                    # Baixa o conteúdo do CSS
+                    response = requests.get(css_url)
+                    response.raise_for_status()
+                    
+                    # Salva o conteúdo em um arquivo .css
+                    file_name = f"style_{index}.css"
+                    local_path = os.path.join(css_dir, file_name)
+                    with open(local_path, "w", encoding="utf-8") as css_file:
+                        css_file.write(response.text)
+                    print(f"CSS salvo em {local_path}")
+                    
+                    # Atualiza o href no HTML para o caminho local
+                    link['href'] = local_path
+
+                except requests.exceptions.RequestException as e:
+                    print(f"Erro ao baixar {css_url}: {e}")
+
+        # Salva o HTML MODIFICADO no arquivo de saída
+        with open("output.html", "w", encoding="utf-8") as file:
+            file.write(str(soup))
+        print("Página completa e CSS localmente linkado salvos em output.html")
+
     except Exception as e:
-        print(f"Page didn't load: {e}")
+        print(f"Erro ao processar a página do produto: {e}")
 
 
 
@@ -120,7 +153,7 @@ def ordem_exec():
         locate_search(nav)
         close_tab(nav)
         product_click(nav)
-        wait_for_element(nav)
+        wait_last_page(nav)
 
         input("Press Enter to close browser...")
         nav.quit()
