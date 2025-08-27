@@ -26,7 +26,7 @@ def initialization():
     return nav
 
 #Espera elemento carregar e clica quando possivel
-def waitTimeAndClick(nav, locator, timeout = 10):
+def wait_time_and_click(nav, locator, timeout = 10):
     try:
         element = WebDriverWait(nav, timeout).until(
             EC.element_to_be_clickable(locator)
@@ -39,19 +39,19 @@ def waitTimeAndClick(nav, locator, timeout = 10):
 
 #Espera o elemento estar presente na pagina
 
-def waitForElement(nav, locator, condition = EC.presence_of_element_located, timeout=10):
+def wait_for_element(nav, locator, condition = EC.presence_of_element_located, timeout=10):
     return WebDriverWait(nav, timeout).until(condition(locator))
 
 
 #Função que desce a pagina kk
-def pageScroll(driver, scroll_pixels, timeout):
+def page_scroll(driver, scroll_pixels, timeout):
     time.sleep(timeout)
     driver.execute_script(f"window.scrollBy(0, {scroll_pixels});")
 
 #Fecha popup de cookie
 def close_modal(nav):
     try:
-        waitTimeAndClick(nav, (By.XPATH, '//*[@class="dp-bar-button dp-bar-dismiss"]'))
+        wait_time_and_click(nav, (By.XPATH, '//*[@class="dp-bar-button dp-bar-dismiss"]'))
         print("Modal Closed")
     except Exception as e:
         print(f"Failed to close modal: {e}")
@@ -59,8 +59,8 @@ def close_modal(nav):
 #Procura onde esta a barra de pesquisa e pesquisa um item
 def locate_search(nav):
     try:
-        waitTimeAndClick(nav, (By.XPATH, '//*[@class="search-input cursor-pointer"]'))
-        click_search = waitTimeAndClick(nav, (By.XPATH, '//input[@name="search"]'))
+        wait_time_and_click(nav, (By.XPATH, '//*[@class="search-input cursor-pointer"]'))
+        click_search = wait_time_and_click(nav, (By.XPATH, '//input[@name="search"]'))
         click_search.send_keys("Câmera")
         click_search.send_keys(Keys.RETURN)
         print("Search Done")
@@ -68,7 +68,7 @@ def locate_search(nav):
         print(f"Error: {e}")
 
 #Fecha dropdown de contato (mexe o mouse um pouco pra atualizar a pagina, não sei por que q é assim)
-def closetab(nav):
+def close_tab(nav):
     try:
         time.sleep(1)
         actions = ActionChains(nav)
@@ -79,11 +79,11 @@ def closetab(nav):
 
 
 #Desce pagina em 200 pixels e clica no produto do link (talvez desenvolver funcao para qualquer um dos itens presentes ao inves de um especifico...)
-def productClick(nav):
+def product_click(nav):
     try:
-        pageScroll(nav, 200, 2)
+        page_scroll(nav, 200, 2)
         try:
-            waitTimeAndClick(nav, (By.XPATH, '//a[contains(@href, "/pt-br/camera-ip-serie-1000-com-full-color-e-ir-vip-1430-d-fc")]'))
+            wait_time_and_click(nav, (By.XPATH, '//a[contains(@href, "/pt-br/camera-ip-serie-1000-com-full-color-e-ir-vip-1430-d-fc")]'))
             print("Product Clicked")
         except Exception as wait_error:
             print(f"tag not found: {wait_error}")
@@ -94,9 +94,9 @@ def productClick(nav):
 
 
 
-def waitLastPage(nav):
+def wait_last_page(nav):
     try:
-        waitForElement(nav, (By.XPATH, '//*[@class="page-product"]'))
+        wait_for_element(nav, (By.XPATH, '//*[@class="page-product"]'))
         try:
             soup = BeautifulSoup(nav.page_source, 'html.parser')
             paragraphs = soup.find_all(class_='mb2 hero-title-product h2 large-h3')           
@@ -118,9 +118,9 @@ def ordemExec():
         nav = initialization()
         close_modal(nav)
         locate_search(nav)
-        closetab(nav)
-        productClick(nav)
-        waitLastPage(nav)
+        close_tab(nav)
+        product_click(nav)
+        wait_for_element(nav)
 
         input("Press Enter to close browser...")
         nav.quit()
