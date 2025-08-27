@@ -113,7 +113,7 @@ def wait_last_page(nav):
 
 
 #Ordem de execução do programa
-def ordemExec():
+def ordem_exec():
     try:
         nav = initialization()
         close_modal(nav)
@@ -127,4 +127,4 @@ def ordemExec():
     except Exception as e:
         print(f"Error: {e}")
 if __name__ == "__main__":
-    ordemExec()
+    ordem_exec()
