@@ -72,7 +72,7 @@ def locate_search(nav):
     except Exception as e:
         print(f"Error: {e}")
 
-#Fecha dropdown de contato (mexe o mouse um pouco pra atualizar a pagina, não sei por que q é assim)
+#Fecha dropdown de contato (mexe o mouse um pouco pra atualizar a pagina, não sei por que que é assim)
 def close_tab(nav):
     try:
         time.sleep(1)
@@ -90,7 +90,7 @@ def product_click(nav):
         try:
             nav.save_screenshot("prints/Item.png")
             #Aberração criada abaixo.
-            #Procura numero de items dentro de "divs" e depois procura o numero de links dentro de "items" e clica no primeiro.
+            #Procura numero de items dentro de "divs" e depois procura o numero de links dentro de "items" e tenta clicar em qualquer um.
             divs = nav.find_elements(By.XPATH, '//div[@class="block-dynamic-list small product-dynamic-list"]')
             for div in divs:
                 items = div.find_elements(By.XPATH, './/div[@class="pb2 pl2 pr2"]')
@@ -111,7 +111,7 @@ def product_click(nav):
         return False
 
 
-#espera carregamento da pagina.
+#Espera carregamento da pagina.
 def wait_last_page(nav):
     try:
         nav.save_screenshot("prints/PageItem.png")
@@ -120,20 +120,20 @@ def wait_last_page(nav):
         #Captura body elements dentro da pagina
         soup = BeautifulSoup(nav.page_source, 'html.parser')
         body_tag = soup.body
+        #Retorna body em formato de string
         if body_tag:
             return str(body_tag)
         else:
             print("No body tag found")
             return ""
     except Exception as e:
-        print(f"Erro ao processar a página do produto: {e}")
+        print(f"Error during page loading: {e}")
+
 
 #Função que adiciona o body pego pelo scraping dentro de outro arquivo
 def insert_body_into_html(body_content, src_path="default.html", dst_path="tests/default.html"):
-    from bs4 import BeautifulSoup
-    import os
 
-    
+#Cria diretório "/tests" se anida não existir
     dst_dir = os.path.dirname(dst_path)
     if dst_dir and not os.path.exists(dst_dir):
         os.makedirs(dst_dir)
