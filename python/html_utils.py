@@ -4,6 +4,3 @@ def insert_body_into_html(): ...
 
 #test_selenium.py
 from createHTML import wait_last_page as wp, insert_body_into_html as ib
-
-#createHTML.py
-from createHTML import wait_last_page, insert_body_into_html

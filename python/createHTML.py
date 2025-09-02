@@ -1,5 +1,4 @@
 import os
-import time
 import test_selenium
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
