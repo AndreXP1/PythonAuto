@@ -13,6 +13,9 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
+from html_utils import wait_last_page as wp, insert_body_into_html as ib
+from html_utils import wait_last_page, insert_body_into_html
+
 
 service = Service(ChromeDriverManager().install())
 
@@ -78,7 +81,7 @@ def close_tab(nav):
         time.sleep(1)
         actions = ActionChains(nav)
         actions.move_by_offset(100, 50).perform()
-        print("Tab closed")
+        print("Tab Closed")
     except Exception as e:
         print(f"Error in closetab {e}")
 
@@ -99,66 +102,16 @@ def product_click(nav):
                     for link in links:
                         try:
                             link.click()
-                            print("product clicked")
-                            break
+                            print("Product Clicked")
+                            return True
                         except Exception as e:
-                            print(f"did not click {e}")
+                            print(f"Error while trying to click product {e}")
         except Exception as wait_error:
             print(f"Wait_Error: {wait_error}")
             return False
     except Exception as e:
         print(f"Unable to scroll: {e}")
         return False
-
-
-#Espera carregamento da pagina.
-def wait_last_page(nav):
-    try:
-        nav.save_screenshot("prints/PageItem.png")
-        wait_for_element(nav, (By.XPATH, '//*[@class="page-product"]'))
-
-        #Captura body elements dentro da pagina
-        soup = BeautifulSoup(nav.page_source, 'html.parser')
-        body_tag = soup.body
-        #Retorna body em formato de string
-        if body_tag:
-            return str(body_tag)
-        else:
-            print("No body tag found")
-            return ""
-    except Exception as e:
-        print(f"Error during page loading: {e}")
-
-
-#Função que adiciona o body pego pelo scraping dentro de outro arquivo
-def insert_body_into_html(body_content, src_path="default.html", dst_path="tests/default.html"):
-
-#Cria diretório "/tests" se anida não existir
-    dst_dir = os.path.dirname(dst_path)
-    if dst_dir and not os.path.exists(dst_dir):
-        os.makedirs(dst_dir)
-
-#Le arquivo original
-    with open(src_path, "r", encoding="utf-8") as f:
-        html = f.read()
-
-    soup = BeautifulSoup(html, "html.parser")
-
-#Se tiver tag body no arquivo orignal remove ela
-    if soup.body:
-        soup.body.decompose()
-
-#Cria nova tag body e insere o conteudo nela.
-    new_body = soup.new_tag("body")
-    new_body.append(BeautifulSoup(body_content, "html.parser"))
-    soup.html.append(new_body)
-
-#Passa o body para o outro arquivo
-    with open(dst_path, "w", encoding="utf-8") as f:
-        f.write(str(soup))
-
-    print(f"Body content inserted into {dst_path}")
-
 
 #Ordem de execução do programa
 def ordem_exec():
@@ -168,8 +121,8 @@ def ordem_exec():
         locate_search(nav)
         close_tab(nav)
         product_click(nav)
-        body_str = wait_last_page(nav)
-        insert_body_into_html(body_str)
+        body_str = wp(nav)
+        ib(body_str)
 
         input("Press Enter to close browser...")
         nav.quit()
