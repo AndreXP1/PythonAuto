@@ -1,53 +1,106 @@
+/* Reset some defaults */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f8f9fa;
-  margin: 0;
-  padding: 0;
-  color: #222;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f6f8fa;
+    color: #222;
 }
 
-h1, h2, h3 {
-  color: #2c3e50;
-  margin-top: 1.5em;
+/* Header styles */
+.block-header {
+    background: #06cb3f;
+    color: #fff;
+    padding: 16px 0;
 }
 
-p {
-  line-height: 1.6;
-  margin-bottom: 1em;
+.block-header__brand {
+    margin-left: 24px;
 }
 
-a {
-  color: #007bff;
-  text-decoration: none;
+.block-header__dropdown__menu,
+.block-header__dropdown__content {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    margin: 16px 0;
+    padding: 16px;
 }
 
-a:hover {
-  text-decoration: underline;
+nav ul,
+.menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-.container {
-  max-width: 800px;
-  margin: 40px auto;
-  background: #fff;
-  padding: 32px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+.menu li {
+    margin-bottom: 8px;
 }
 
-ul, ol {
-  margin-left: 2em;
+.menu a {
+    color: #06cb3f;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
 }
 
-button, input[type="submit"] {
-  background: #007bff;
-  color: #fff;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1em;
+.menu a:hover {
+    color: #009e2a;
+    text-decoration: underline;
 }
 
-button:hover, input[type="submit"]:hover {
-  background: #0056b3;
+/* Chat button styles */
+.chat_button {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 1000;
+}
+
+.link-chat-mobile {
+    background: #06cb3f;
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 24px;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    transition: background 0.2s;
+}
+
+.link-chat-mobile:hover {
+    background: #009e2a;
+}
+
+/* Bubble styles */
+.bubble {
+    background: #fff;
+    color: #06cb3f;
+    border-radius: 24px;
+    padding: 8px 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin-top: 8px;
+    font-size: 1rem;
+    display: inline-block;
+}
+
+/* Accessibility container */
+.acessibility-container {
+    background: #e9fbe7;
+    padding: 12px 24px;
+    border-radius: 8px;
+    margin: 16px 0;
+}
+
+/* Responsive */
+@media (max-width: 800px) {
+    .block-header__brand {
+        margin-left: 8px;
+    }
+    .chat_button {
+        right: 8px;
+        bottom: 8px;
+    }
 }
