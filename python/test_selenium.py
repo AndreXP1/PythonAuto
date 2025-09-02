@@ -86,63 +86,74 @@ def product_click(nav):
     try:
         page_scroll(nav, 200, 2)
         try:
-            wait_time_and_click(nav, (By.XPATH, '//a[contains(@href, "/pt-br/camera-ip-serie-1000-com-full-color-e-ir-vip-1430-d-fc")]'))
-            print("Product Clicked")
+            #Aberração criada abaixo.
+            #Procura numero de items dentro de "divs" e depois procura o numero de links dentro de "items" e clica no primeiro.
+            divs = nav.find_elements(By.XPATH, '//div[@class="block-dynamic-list small product-dynamic-list"]')
+            for div in divs:
+                items = div.find_elements(By.XPATH, './/div[@class="pb2 pl2 pr2"]')
+                for item in items:
+                    links = item.find_elements(By.TAG_NAME, 'a')
+                    for link in links:
+                        try:
+                            link.click()
+                            print("product clicked")
+                            break
+                        except Exception as e:
+                            print(f"did not click {e}")
         except Exception as wait_error:
-            print(f"tag not found: {wait_error}")
+            print(f"Wait_Error: {wait_error}")
             return False
     except Exception as e:
         print(f"Unable to scroll: {e}")
         return False
 
 
-
+#espera carregamento da pagina.
 def wait_last_page(nav):
     try:
         wait_for_element(nav, (By.XPATH, '//*[@class="page-product"]'))
-        
+
+        #Captura body elements dentro da pagina
         soup = BeautifulSoup(nav.page_source, 'html.parser')
-        
-        # Cria um diretório para salvar os arquivos CSS
-        css_dir = "css_files"
-        if not os.path.exists(css_dir):
-            os.makedirs(css_dir)
-
-        # Encontra todas as tags <link> de CSS
-        css_links = soup.find_all('link', rel='stylesheet')
-        
-        for index, link in enumerate(css_links):
-            href = link.get('href')
-            if href:
-                # Constrói a URL completa do arquivo CSS
-                css_url = urljoin(nav.current_url, href)
-                try:
-                    # Baixa o conteúdo do CSS
-                    response = requests.get(css_url)
-                    response.raise_for_status()
-                    
-                    # Salva o conteúdo em um arquivo .css
-                    file_name = f"style_{index}.css"
-                    local_path = os.path.join(css_dir, file_name)
-                    with open(local_path, "w", encoding="utf-8") as css_file:
-                        css_file.write(response.text)
-                    print(f"CSS salvo em {local_path}")
-                    
-                    # Atualiza o href no HTML para o caminho local
-                    link['href'] = local_path
-
-                except requests.exceptions.RequestException as e:
-                    print(f"Erro ao baixar {css_url}: {e}")
-
-        # Salva o HTML MODIFICADO no arquivo de saída
-        with open("output.html", "w", encoding="utf-8") as file:
-            file.write(str(soup))
-        print("Página completa e CSS localmente linkado salvos em output.html")
-
+        body_tag = soup.body
+        if body_tag:
+            return str(body_tag)
+        else:
+            print("No body tag found")
+            return ""
     except Exception as e:
         print(f"Erro ao processar a página do produto: {e}")
 
+#Função que adiciona o body pego pelo scraping dentro de outro arquivo
+def insert_body_into_html(body_content, src_path="default.html", dst_path="tests/default.html"):
+    from bs4 import BeautifulSoup
+    import os
 
+    
+    dst_dir = os.path.dirname(dst_path)
+    if dst_dir and not os.path.exists(dst_dir):
+        os.makedirs(dst_dir)
+
+#Le arquivo original
+    with open(src_path, "r", encoding="utf-8") as f:
+        html = f.read()
+
+    soup = BeautifulSoup(html, "html.parser")
+
+#Se tiver tag body no arquivo orignal remove ela
+    if soup.body:
+        soup.body.decompose()
+
+#Cria nova tag body e insere o conteudo nela.
+    new_body = soup.new_tag("body")
+    new_body.append(BeautifulSoup(body_content, "html.parser"))
+    soup.html.append(new_body)
+
+#Passa o body para o outro arquivo
+    with open(dst_path, "w", encoding="utf-8") as f:
+        f.write(str(soup))
+
+    print(f"Body content inserted into {dst_path}")
 
 
 #Ordem de execução do programa
@@ -153,7 +164,8 @@ def ordem_exec():
         locate_search(nav)
         close_tab(nav)
         product_click(nav)
-        wait_last_page(nav)
+        body_str = wait_last_page(nav)
+        insert_body_into_html(body_str)
 
         input("Press Enter to close browser...")
         nav.quit()
