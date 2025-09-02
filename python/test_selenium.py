@@ -65,8 +65,10 @@ def locate_search(nav):
         wait_time_and_click(nav, (By.XPATH, '//*[@class="search-input cursor-pointer"]'))
         click_search = wait_time_and_click(nav, (By.XPATH, '//input[@name="search"]'))
         click_search.send_keys("Câmera")
+        nav.save_screenshot("prints/Search.png")
         click_search.send_keys(Keys.RETURN)
         print("Search Done")
+        
     except Exception as e:
         print(f"Error: {e}")
 
@@ -86,6 +88,7 @@ def product_click(nav):
     try:
         page_scroll(nav, 200, 2)
         try:
+            nav.save_screenshot("prints/Item.png")
             #Aberração criada abaixo.
             #Procura numero de items dentro de "divs" e depois procura o numero de links dentro de "items" e clica no primeiro.
             divs = nav.find_elements(By.XPATH, '//div[@class="block-dynamic-list small product-dynamic-list"]')
@@ -111,6 +114,7 @@ def product_click(nav):
 #espera carregamento da pagina.
 def wait_last_page(nav):
     try:
+        nav.save_screenshot("prints/PageItem.png")
         wait_for_element(nav, (By.XPATH, '//*[@class="page-product"]'))
 
         #Captura body elements dentro da pagina
