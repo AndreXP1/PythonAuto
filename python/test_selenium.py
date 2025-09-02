@@ -14,7 +14,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 from html_utils import wait_last_page as wp, insert_body_into_html as ib
-from html_utils import wait_last_page, insert_body_into_html
 
 
 service = Service(ChromeDriverManager().install())
