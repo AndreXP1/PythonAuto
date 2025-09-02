@@ -10,7 +10,7 @@ O código principal está em `python/test_selenium.py` e realiza as seguintes et
 2. 🍪 **Fechamento de pop-up de cookies**: Localiza e fecha o modal de cookies ao acessar o site.
 3. 🔎 **Pesquisa de produto**: Interage com a barra de pesquisa para buscar por "Câmera".
 4. 🖱️ **Interação com elementos**: Move o mouse para fechar dropdowns e clica em um produto específico após rolar a página.
-5. 📄 **Extração de dados**: Após acessar a página do produto, utiliza BeautifulSoup para extrair o nome do produto e salva o resultado em `output.html`.
+5. 📄 **Extração de dados**: Após acessar a página do produto, utiliza BeautifulSoup para extrair o nome do produto e salva o resultado em `default.txt`, ao testar pagina favor trocar tipo para .html.
 6. 🏁 **Encerramento**: Aguarda interação do usuário para fechar o navegador.
 
 ## Requisitos 📦
@@ -23,7 +23,7 @@ O código principal está em `python/test_selenium.py` e realiza as seguintes et
 Instale as dependências com:
 
 ```bash
-pip install selenium webdriver-manager beautifulsoup4
+pip install selenium webdriver-manager beautifulsoup4 lxml
 ```
 
 ## Execução ▶️
@@ -37,7 +37,7 @@ python python/test_selenium.py
 ## Estrutura de Pastas 🗂️
 
 - `python/test_selenium.py`: Script principal de automação.
-- `python/output.html`: Arquivo gerado com o resultado da extração.
+- `python/default.html`: Arquivo gerado com o resultado da extração.
 
 ## Observações 💡
 
