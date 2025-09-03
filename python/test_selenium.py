@@ -1,5 +1,7 @@
 import random
 import time
+from html_utils import insert_body_into_html as ib
+from html_utils import wait_last_page as wp
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -9,8 +11,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
-from html_utils import wait_last_page as wp, insert_body_into_html as ib
-
 
 service = Service(ChromeDriverManager().install())
 
@@ -26,7 +26,8 @@ def initialization():
     time.sleep(random.uniform (1, 3))
     return nav
 
-#Espera elemento carregar e clica quando possivel
+
+#Waits for element to load and clicks when possible
 def wait_time_and_click(nav, locator, timeout = 10):
     try:
         element = WebDriverWait(nav, timeout).until(
@@ -37,19 +38,20 @@ def wait_time_and_click(nav, locator, timeout = 10):
     except Exception as e:
         print(f"Element not found or not clickable!")
         return print(f"Error {e}")
+    
 
-#Espera o elemento estar presente na pagina
-
+#Waits for the element to be present on the page
 def wait_for_element(nav, locator, condition = EC.presence_of_element_located, timeout=10):
     return WebDriverWait(nav, timeout).until(condition(locator))
 
 
-#Função que desce a pagina kk
+#Function that scrolls down the page
 def page_scroll(driver, scroll_pixels, timeout):
     time.sleep(timeout)
     driver.execute_script(f"window.scrollBy(0, {scroll_pixels});")
 
-#Fecha popup de cookie
+
+#Closes cookie popup
 def close_modal(nav):
     try:
         wait_time_and_click(nav, (By.XPATH, '//*[@class="dp-bar-button dp-bar-dismiss"]'))
@@ -57,20 +59,22 @@ def close_modal(nav):
     except Exception as e:
         print(f"Failed to close modal: {e}")
 
-#Procura onde esta a barra de pesquisa e pesquisa um item
+
+#Finds where the search bar is and searches for an item
 def locate_search(nav):
     try:
         wait_time_and_click(nav, (By.XPATH, '//*[@class="search-input cursor-pointer"]'))
         click_search = wait_time_and_click(nav, (By.XPATH, '//input[@name="search"]'))
         click_search.send_keys("Câmera")
-        nav.save_screenshot("prints/Search.png")
+        save_print(nav)
         click_search.send_keys(Keys.RETURN)
         print("Search Done")
         
     except Exception as e:
         print(f"Error: {e}")
 
-#Fecha dropdown de contato (mexe o mouse um pouco pra atualizar a pagina, não sei por que que é assim)
+
+#Closes contact dropdown (moves the mouse a bit to refresh the page, not sure why this is needed)
 def close_tab(nav):
     try:
         time.sleep(1)
@@ -81,41 +85,65 @@ def close_tab(nav):
         print(f"Error in closetab {e}")
 
 
-#Desce pagina em 200 pixels e clica no produto do link (talvez desenvolver funcao para qualquer um dos itens presentes ao inves de um especifico...)
-def product_click(nav):
+#Find target Div and look for other target divs inside.
+def search_into_div(nav):
+    try:
+        divs = nav.find_elements(By.XPATH, '//div[@class="block-dynamic-list small product-dynamic-list"]')
+        for div in divs:
+                items = div.find_elements(By.XPATH, './/div[@class="pb2 pl2 pr2"]')
+        return items
+    except Exception as e:
+        print(f"Unable to find Div {e}")
+
+
+#Find tag items inside the target divs from search_into_div function
+def find_item(nav):
+    try:
+        items = search_into_div(nav)
+        links = []
+        for item in items:
+            links.extend(item.find_elements(By.TAG_NAME, 'a'))
+        return links
+    except Exception as e:
+        print(f"Unable to find item due to: {e}")
+
+
+#Scroll down until element is visible, waits 1 second and then clicks on the first element found in find_item function
+def click_link(nav):
     try:
         page_scroll(nav, 200, 2)
-        try:
-            nav.save_screenshot("prints/Item.png")
-            #Aberração criada abaixo.
-            #Procura numero de items dentro de "divs" e depois procura o numero de links dentro de "items" e tenta clicar em qualquer um.
-            divs = nav.find_elements(By.XPATH, '//div[@class="block-dynamic-list small product-dynamic-list"]')
-            for div in divs:
-                items = div.find_elements(By.XPATH, './/div[@class="pb2 pl2 pr2"]')
-                for item in items:
-                    links = item.find_elements(By.TAG_NAME, 'a')
-                    for link in links:
-                        try:
-                            link.click()
-                            print("Product Clicked")
-                            return True
-                        except Exception as e:
-                            print(f"Error while trying to click product {e}")
-        except Exception as wait_error:
-            print(f"Wait_Error: {wait_error}")
-            return False
+        time.sleep(1)
+        links = find_item(nav)
+        for link in links:
+            try:
+                link.click()
+                print("Product Clicked")
+                save_print(nav)
+                return True
+            except Exception as e:
+                print(f"Error while trying to click product: {e}")
     except Exception as e:
-        print(f"Unable to scroll: {e}")
-        return False
+        print(f"Error: {e}")
 
-#Ordem de execução do programa
+
+def save_print(nav):
+    try:
+        nav.save_screenshot("prints/Item.png")
+    except Exception as e:
+        print(f"Something went wrong: {e}")
+
+
+#Order of program execution
 def ordem_exec():
     try:
         nav = initialization()
         close_modal(nav)
         locate_search(nav)
         close_tab(nav)
-        product_click(nav)
+        search_into_div(nav)
+        find_item(nav)
+        click_link(nav)
+        save_print(nav)
         body_str = wp(nav)
         ib(body_str)
 
