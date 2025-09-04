@@ -2,7 +2,7 @@ import random
 import time
 from html_utils import insert_body_into_html as ib
 from html_utils import wait_last_page as wp
-from html_utils import change_styles as cs
+# from html_utils import change_styles as cs
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
