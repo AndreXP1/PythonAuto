@@ -2,6 +2,7 @@ import random
 import time
 from html_utils import insert_body_into_html as ib
 from html_utils import wait_last_page as wp
+from html_utils import change_styles as cs
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -146,6 +147,7 @@ def ordem_exec():
         save_print(nav)
         body_str = wp(nav)
         ib(body_str)
+        # cs(nav)
 
         input("Press Enter to close browser...")
         nav.quit()

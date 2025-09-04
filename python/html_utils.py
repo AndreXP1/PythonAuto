@@ -52,3 +52,43 @@ def insert_body_into_html(body_content, src_path="default.html", dst_path="tests
         f.write(str(soup))
 
     print(f"Body content inserted into {dst_path}")
+
+
+# #Testing...
+
+# def get_default_style(nav, src="css_files/style.css", file="default.html"):
+#     try:
+#         with open(file, "r", encoding="utf-8") as f:
+#             default_style = f.read()
+
+#         soup = BeautifulSoup(default_style, "html.parser")
+
+#         if soup.link:
+#             with open(soup.link, "r", encoding="utf-8") as f:
+#                 style = f.read()
+        
+
+
+#     except Exception as e:
+#         print(f"error: {e}")
+
+# def change_styles(nav, src_path="tests/default.html"):
+#     try:
+#         with open(src_path, "r", encoding="utf-8") as f:
+#             html = f.read()
+        
+#         soup = BeautifulSoup(html, "html.parser")
+
+
+#         if soup.link:
+#             soup.link.decompose()
+        
+
+#         new_style = soup.new_tag("link")
+#         new_style.append(BeautifulSoup(soup, "html.parser"))
+#         soup.html.append(new_style)
+
+#         with open(src_path, "w", encoding="utf-8") as f:
+#             f.write(str(soup))
+#     except Exception as e:
+#         print(f"Something went wrong: {e}")
